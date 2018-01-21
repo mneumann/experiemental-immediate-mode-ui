@@ -156,15 +156,18 @@ def ev_coord_to_slider_value(ev_x, x, w)
     end
 end
 
-def slider(renderer, x, y, w, h, is_horizontal, ui_state, &on_change)
+def slider(renderer, x, y, w, h, is_horizontal, ui_state, style={}, &on_change)
     coords = [x, y, w, h]
     slider_val = ui_state[:value] || 0.0
 
-    renderer.fill_rect x, y, w, h, renderer.gray(200)
+    bg_color = style[:bg] || renderer.gray(200)
+    fg_color = style[:fg] || renderer.rgb(255, 0, 0)
+
+    renderer.fill_rect x, y, w, h, bg_color
     if is_horizontal
-        renderer.fill_rect x, y, [(slider_val * w).to_i, w].min, h, renderer.rgb(255, 0, 0)
+        renderer.fill_rect x, y, [(slider_val * w).to_i, w].min, h, fg_color
     else
-        renderer.fill_rect x, y, w, [(slider_val * h).to_i, h].min, renderer.rgb(255, 0, 0)
+        renderer.fill_rect x, y, w, [(slider_val * h).to_i, h].min, fg_color
     end
 
     if not ui_state[:pressed]
@@ -203,23 +206,28 @@ def slider(renderer, x, y, w, h, is_horizontal, ui_state, &on_change)
 	renderer.register_event_handler(evh1)
 	renderer.register_event_handler(evh2)
     end
-
 end
 
-def slider_x(renderer, x, y, w, h, ui_state, &on_change)
-    slider(renderer, x, y, w, h, true, ui_state, &on_change)
+def slider_x(renderer, x, y, w, h, ui_state, style={}, &on_change)
+    slider(renderer, x, y, w, h, true, ui_state, style, &on_change)
 end
 
-def slider_y(renderer, x, y, w, h, ui_state, &on_change)
-    slider(renderer, x, y, w, h, false, ui_state, &on_change)
+def slider_y(renderer, x, y, w, h, ui_state, style={}, &on_change)
+    slider(renderer, x, y, w, h, false, ui_state, style, &on_change)
 end
 
-def button(renderer, x, y, w, h, label, ui_state, &on_click)
+def button(renderer, x, y, w, h, label, ui_state, style={}, &on_click)
     coords = [x, y, w, h]
+
+    bg_color = style[:bg] || renderer.gray(200)
+    fg_color = style[:fg] || renderer.black
+    border_color = style[:border] || renderer.black
+    font = style[:font] || 'default'
+
     if not ui_state[:pressed]
-	renderer.fill_rect x, y, w, h, renderer.gray(200)
-	renderer.rect x, y, w, h, renderer.black
-	renderer.text('default', label, x+2, y, renderer.black)
+	renderer.fill_rect x, y, w, h, bg_color
+	renderer.rect x, y, w, h, border_color
+	renderer.text(font, label, x+2, y, fg_color)
 	evh = {:type => :mouse_down, coords: coords, callback: proc {|_ev| 
 	    if not ui_state[:pressed]
 	        ui_state[:pressed] = true
@@ -230,8 +238,8 @@ def button(renderer, x, y, w, h, label, ui_state, &on_click)
 	}}
 	renderer.register_event_handler(evh)
     else
-	renderer.rect x, y, w, h, renderer.black
-	renderer.text('default', label, x+5, y, renderer.black)
+	renderer.rect x, y, w, h, border_color
+	renderer.text(font, label, x+5, y, fg_color)
 	evh = {:type => :mouse_up, callback: proc {|ev|
 	    if ui_state[:pressed] == true
 	        ui_state[:pressed] = false
