@@ -35,7 +35,8 @@ class Renderer
 
     def black() @black end
     def white() @white end
-    def gray(v) rgb(v, v, v) end
+    def gray(scale) v=(255*scale).to_i; rgb(v, v, v) end
+    def red(scale=1.0) rgb((255*scale).to_i, 0, 0) end
 
     def fill_rect(x, y, w, h, color)
 	color = internal_color(color) if color.is_a? Array
@@ -160,7 +161,7 @@ def slider(renderer, x, y, w, h, is_horizontal, ui_state, style={}, &on_change)
     coords = [x, y, w, h]
     slider_val = ui_state[:value] || 0.0
 
-    bg_color = style[:bg] || renderer.gray(200)
+    bg_color = style[:bg] || renderer.gray(0.8)
     fg_color = style[:fg] || renderer.rgb(255, 0, 0)
     border_color = style[:border]
 
@@ -224,7 +225,7 @@ end
 def button(renderer, x, y, w, h, label, ui_state, style={}, &on_click)
     coords = [x, y, w, h]
 
-    bg_color = style[:bg] || renderer.gray(200)
+    bg_color = style[:bg] || renderer.gray(0.8)
     fg_color = style[:fg] || renderer.black
     border_color = style[:border] || renderer.black
     font = style[:font] || 'default'

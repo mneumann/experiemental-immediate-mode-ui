@@ -17,7 +17,8 @@ if __FILE__ == $0
 	    }
 	    slider_x(renderer, 120, y, 420, 20, widget_state, style) {|s| ui_state[:focus] = s[:id] }
 	end
-	slider_y(renderer, 560, 10, 20, 380, lazy(ui_state, [:global_slider])) do |s|
+	widget_state = lazy(ui_state, [:global_slider])
+	slider_y(renderer, 560, 10, 20, 380, widget_state, {fg: renderer.red(widget_state[:value] || 1.0)}) do |s|
             ui_state[:focus] = s[:id]
 	    # Update all other sliders with the same value as the global slider
 	    ui_state.each_pair {|key, v|
