@@ -162,12 +162,17 @@ def slider(renderer, x, y, w, h, is_horizontal, ui_state, style={}, &on_change)
 
     bg_color = style[:bg] || renderer.gray(200)
     fg_color = style[:fg] || renderer.rgb(255, 0, 0)
+    border_color = style[:border]
 
     renderer.fill_rect x, y, w, h, bg_color
     if is_horizontal
-        renderer.fill_rect x, y, [(slider_val * w).to_i, w].min, h, fg_color
+	ww = [(slider_val * w).to_i, w].min
+        renderer.fill_rect x, y, ww, h, fg_color
+        renderer.rect x, y, ww, h, border_color if border_color
     else
-        renderer.fill_rect x, y, w, [(slider_val * h).to_i, h].min, fg_color
+        hh = [(slider_val * h).to_i, h].min
+        renderer.fill_rect x, y, w, hh, fg_color
+        renderer.rect x, y, w, hh, border_color if border_color
     end
 
     if not ui_state[:pressed]
