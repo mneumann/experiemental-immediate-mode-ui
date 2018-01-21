@@ -145,6 +145,17 @@ end
 # Widgets
 # -----------------------------------------------------------
 
+def ev_coord_to_slider_value(ev_x, x, w)
+    v = ev_x - x
+    if v >= w
+	1.0
+    elsif v <= 0
+	0.0
+    else
+	v / w.to_f
+    end
+end
+
 def slider_x(renderer, x, y, w, h, ui_state, &on_change)
     coords = [x, y, w, h]
     slider_val = ui_state[:value] || 0.0
@@ -156,14 +167,7 @@ def slider_x(renderer, x, y, w, h, ui_state, &on_change)
 	evh = {:type => :mouse_down, coords: coords, callback: proc {|ev| 
 	    if not ui_state[:pressed]
 	        ui_state[:pressed] = true
-		v = ev.x - x
-		if v >= w
-		    ui_state[:value] = 1.0
-		elsif v <= 0
-		    ui_state[:value] = 0.0
-		else
-		    ui_state[:value] = v / w.to_f
-		end
+		ui_state[:value] = ev_coord_to_slider_value(ev.x, x, w)
     	        on_change.call(ui_state) if on_change
 		true
 	    else
@@ -175,16 +179,7 @@ def slider_x(renderer, x, y, w, h, ui_state, &on_change)
 	evh1 = {:type => :mouse_up, callback: proc {|ev|
 	    if ui_state[:pressed] == true
 	        ui_state[:pressed] = false
-
-		v = ev.x - x
-		if v >= w
-		    ui_state[:value] = 1.0
-		elsif v <= 0
-		    ui_state[:value] = 0.0
-		else
-		    ui_state[:value] = v / w.to_f
-		end
-
+		ui_state[:value] = ev_coord_to_slider_value(ev.x, x, w)
     	        on_change.call(ui_state) if on_change
 		true
 	    else
@@ -194,14 +189,7 @@ def slider_x(renderer, x, y, w, h, ui_state, &on_change)
 
 	evh2 = {:type => :mouse_move, callback: proc {|ev|
 	    if ui_state[:pressed] == true
-		v = ev.x - x
-		if v >= w
-		    ui_state[:value] = 1.0
-		elsif v <= 0
-		    ui_state[:value] = 0.0
-		else
-		    ui_state[:value] = v / w.to_f
-		end
+		ui_state[:value] = ev_coord_to_slider_value(ev.x, x, w)
     	        on_change.call(ui_state) if on_change
 		true
 	    else
