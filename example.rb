@@ -1,5 +1,7 @@
-$LOAD_PATH.unshift "."
-require 'immui'
+$LOAD_PATH.unshift "./lib"
+require 'immui/core'
+require 'immui/widgets/button'
+require 'immui/widgets/slider'
 
 if __FILE__ == $0
     UI.new(600, 400, "immui", '/usr/local/share/fonts/dejavu/DejaVuSans.ttf', 18).run do |renderer, ui_state| 
