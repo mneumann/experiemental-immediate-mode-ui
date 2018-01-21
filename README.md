@@ -5,7 +5,9 @@ For now this is written in Ruby.
 
 ## Widgets
 
-For now we only have buttons and horizontal and vertical sliders :)
+* Buttons
+* Horizontal and vertical sliders
+* Draggable
 
 ## Screencast
 
