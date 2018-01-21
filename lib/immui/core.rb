@@ -37,6 +37,7 @@ class Renderer
     def white() @white end
     def gray(scale) v=(255*scale).to_i; rgb(v, v, v) end
     def red(scale=1.0) rgb((255*scale).to_i, 0, 0) end
+    def random_color() rgb(rand(256), rand(256), rand(256)) end
 
     def fill_rect(x, y, w, h, color)
 	color = internal_color(color) if color.is_a? Array
@@ -69,7 +70,7 @@ class Renderer
     end
 
     def find_matching_event_handlers(event)
-	@event_handlers.each do |handler|
+	@event_handlers.reverse_each do |handler|
 	    if (handler[:type] == :mouse_move and event.kind_of? SDL::Event::MouseMotion) ||
 	       (handler[:type] == :mouse_down and event.kind_of? SDL::Event::MouseButtonDown) ||
 	       (handler[:type] == :mouse_up and event.kind_of? SDL::Event::MouseButtonUp) then
@@ -122,6 +123,8 @@ class UI
 	    needs_redraw = false
 	    @renderer.find_matching_event_handlers(event) do |handler|
 		needs_redraw = true if handler[:callback].call(event)
+		# Only fire the first successful event (XXX).
+		break if needs_redraw
 	    end	
 	    return needs_redraw
 	else
@@ -140,4 +143,21 @@ def lazy(ui_state, id, &block)
     new_val = block ? block.call(id) : {id: id}
     ui_state[id] = new_val
     return new_val
+end
+
+class Rect < Struct.new(:x, :y, :w, :h)
+    def x2() self.x + self.w - 1 end
+    def y2() self.y + self.h - 1 end
+    def to_a() [self.x, self.y, self.w, self.h] end
+end
+
+class Point < Struct.new(:x, :y)
+    # Clips self inside the rect described by `rect`.
+    # Returns a new Point.
+    def clip_in_rect(rect)
+	Point.new(
+	    [[self.x, rect.x].max, rect.x2].min,
+	    [[self.y, rect.y].max, rect.y2].min
+	)
+    end
 end

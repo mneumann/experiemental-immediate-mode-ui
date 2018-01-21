@@ -7,6 +7,6 @@ For now this is written in Ruby.
 
 For now we only have buttons and horizontal and vertical sliders :)
 
-## Screenshot
+## Screencast
 
-![Screenshot of UI](/images/screenshot.png?raw=true "Screenshot")
+![Screencast of UI](/images/screencast.gif?raw=true "Screencast")
