@@ -1,4 +1,4 @@
-# Experiemental immediate mode UI
+# Experimental immediate mode UI
 
 This is a proof-of-concept immediate mode UI (aka "hack").
 For now this is written in Ruby.
