@@ -156,18 +156,22 @@ def ev_coord_to_slider_value(ev_x, x, w)
     end
 end
 
-def slider_x(renderer, x, y, w, h, ui_state, &on_change)
+def slider(renderer, x, y, w, h, is_horizontal, ui_state, &on_change)
     coords = [x, y, w, h]
     slider_val = ui_state[:value] || 0.0
 
     renderer.fill_rect x, y, w, h, renderer.gray(200)
-    renderer.fill_rect x, y, [(slider_val * w).to_i, w].min, h, renderer.rgb(255, 0, 0)
+    if is_horizontal
+        renderer.fill_rect x, y, [(slider_val * w).to_i, w].min, h, renderer.rgb(255, 0, 0)
+    else
+        renderer.fill_rect x, y, w, [(slider_val * h).to_i, h].min, renderer.rgb(255, 0, 0)
+    end
 
     if not ui_state[:pressed]
 	evh = {:type => :mouse_down, coords: coords, callback: proc {|ev| 
 	    if not ui_state[:pressed]
 	        ui_state[:pressed] = true
-		ui_state[:value] = ev_coord_to_slider_value(ev.x, x, w)
+	        ui_state[:value] = is_horizontal ? ev_coord_to_slider_value(ev.x, x, w) : ev_coord_to_slider_value(ev.y, y, h)
     	        on_change.call(ui_state) if on_change
 		true
 	    else
@@ -179,7 +183,7 @@ def slider_x(renderer, x, y, w, h, ui_state, &on_change)
 	evh1 = {:type => :mouse_up, callback: proc {|ev|
 	    if ui_state[:pressed] == true
 	        ui_state[:pressed] = false
-		ui_state[:value] = ev_coord_to_slider_value(ev.x, x, w)
+	        ui_state[:value] = is_horizontal ? ev_coord_to_slider_value(ev.x, x, w) : ev_coord_to_slider_value(ev.y, y, h)
     	        on_change.call(ui_state) if on_change
 		true
 	    else
@@ -189,7 +193,7 @@ def slider_x(renderer, x, y, w, h, ui_state, &on_change)
 
 	evh2 = {:type => :mouse_move, callback: proc {|ev|
 	    if ui_state[:pressed] == true
-		ui_state[:value] = ev_coord_to_slider_value(ev.x, x, w)
+	        ui_state[:value] = is_horizontal ? ev_coord_to_slider_value(ev.x, x, w) : ev_coord_to_slider_value(ev.y, y, h)
     	        on_change.call(ui_state) if on_change
 		true
 	    else
@@ -199,6 +203,15 @@ def slider_x(renderer, x, y, w, h, ui_state, &on_change)
 	renderer.register_event_handler(evh1)
 	renderer.register_event_handler(evh2)
     end
+
+end
+
+def slider_x(renderer, x, y, w, h, ui_state, &on_change)
+    slider(renderer, x, y, w, h, true, ui_state, &on_change)
+end
+
+def slider_y(renderer, x, y, w, h, ui_state, &on_change)
+    slider(renderer, x, y, w, h, false, ui_state, &on_change)
 end
 
 def button(renderer, x, y, w, h, label, ui_state, &on_click)
