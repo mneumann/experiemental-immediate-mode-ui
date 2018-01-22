@@ -1,8 +1,8 @@
 $LOAD_PATH.unshift "./lib"
-require 'immui/core'
-require 'immui/widgets/button'
-require 'immui/widgets/slider'
-require 'immui/widgets/draggable'
+require 'eui/core'
+require 'eui/widgets/button'
+require 'eui/widgets/slider'
+require 'eui/widgets/draggable'
 
 if __FILE__ == $0
     UI.new(600, 480, "immui", '/usr/local/share/fonts/dejavu/DejaVuSans.ttf', 18).run do |renderer, ui_state|
