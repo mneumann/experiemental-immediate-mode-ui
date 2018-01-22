@@ -21,9 +21,9 @@ class Placement
     end
 
     def place_down(w, h, gap=0)
-	coords = [@current_pos.x, @current_pos.y, w, h]
+	rect = Rect.new(@current_pos.x, @current_pos.y, w, h)
 	@current_pos = Point.new(@current_pos.x, @current_pos.y + h + gap)
-	return coords
+	return rect
     end
 end
 
@@ -35,7 +35,7 @@ if __FILE__ == $0
 	for i in 0 .. 9
 	    id = [:button, i]; widget_state = lazy(ui_state, id)
 	    style = {fg: ui_state[:focus] == id ? renderer.rgb(255, 0, 0) : renderer.black}
-	    button(renderer, *placement.place_down(100, 20, 10), "Hello #{i}", widget_state, style) {|s| ui_state[:focus] = s[:id] }
+	    button(renderer, placement.place_down(100, 20, 10), "Hello #{i}", widget_state, style) {|s| ui_state[:focus] = s[:id] }
 	end
 
 	placement.reset.move_right(100 + 10)
@@ -45,13 +45,13 @@ if __FILE__ == $0
 	    style = {
 		border: ui_state[:focus] == id ? renderer.black : nil
 	    }
-	    slider_x(renderer, *placement.place_down(420, 20, 10), widget_state, style) {|s| ui_state[:focus] = s[:id] }
+	    slider_x(renderer, placement.place_down(420, 20, 10), widget_state, style) {|s| ui_state[:focus] = s[:id] }
 	end
 
 	placement.reset.move_right(100 + 10 + 420 + 20)
 
 	id = [:global_slider]; widget_state = lazy(ui_state, id)
-	slider_y(renderer, *placement.place_down(20, 290), widget_state, {fg: renderer.red(widget_state[:value] || 1.0)}) do |s|
+	slider_y(renderer, placement.place_down(20, 290), widget_state, {fg: renderer.red(widget_state[:value] || 1.0)}) do |s|
             ui_state[:focus] = s[:id]
 	    # Update all other sliders with the same value as the global slider
 	    ui_state.each_pair {|key, v|
@@ -60,12 +60,12 @@ if __FILE__ == $0
 	end
 
 	# This draws a box in which the drag handles will float
-	renderer.fill_rect(10, 310, 570, 160, renderer.gray(0.8))
+	renderer.fill_rect(Rect.new(10, 310, 570, 160), renderer.gray(0.8))
 
 	for i in 0 .. 9
 	    drag_handle_state = lazy(ui_state, [:drag, i]) {|id| {id: id, handle_x: 10 + (i*45), handle_y: 310, color: renderer.random_color(), drag_size: 40}}
 	    drag_size = drag_handle_state[:drag_size]
-	    renderer.fill_rect(drag_handle_state[:handle_x], drag_handle_state[:handle_y], drag_size, drag_size, drag_handle_state[:color])
+	    renderer.fill_rect(Rect.new(drag_handle_state[:handle_x], drag_handle_state[:handle_y], drag_size, drag_size), drag_handle_state[:color])
 	    draggable(renderer, drag_size, drag_size, Rect.new(10, 310, 570-drag_size, 160-drag_size), drag_handle_state)
 	end
     end

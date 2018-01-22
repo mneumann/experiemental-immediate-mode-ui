@@ -7,7 +7,7 @@ def draggable(renderer, handle_w, handle_h, region_rect, ui_state, &on_change)
     handle_x = ui_state[:handle_x] || 0
     handle_y = ui_state[:handle_y] || 0
     if not ui_state[:pressed]
-	evh = {:type => :mouse_down, coords: [handle_x, handle_y, handle_w, handle_h], callback: proc {|ev|
+	evh = {:type => :mouse_down, rect: Rect.new(handle_x, handle_y, handle_w, handle_h), callback: proc {|ev|
 	    if not ui_state[:pressed]
 	        ui_state[:pressed] = true
     	        on_change.call(ui_state) if on_change
