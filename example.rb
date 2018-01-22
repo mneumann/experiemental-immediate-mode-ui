@@ -4,24 +4,54 @@ require 'eui/widgets/button'
 require 'eui/widgets/slider'
 require 'eui/widgets/draggable'
 
+class Placement
+    def initialize(bounds_rect)
+	@bounds_rect = bounds_rect
+	reset
+    end
+
+    def reset
+	@current_pos = Point.new(@bounds_rect.x, @bounds_rect.y)
+	self
+    end
+
+    def move_right(w)
+	@current_pos = Point.new(@current_pos.x + w, @current_pos.y)
+	self
+    end
+
+    def place_down(w, h, gap=0)
+	coords = [@current_pos.x, @current_pos.y, w, h]
+	@current_pos = Point.new(@current_pos.x, @current_pos.y + h + gap)
+	return coords
+    end
+end
+
 if __FILE__ == $0
-    UI.new(600, 480, "immui", '/usr/local/share/fonts/dejavu/DejaVuSans.ttf', 18).run do |renderer, ui_state|
-	for y, i in 10.step(300, 30).with_index
-	    id = [:button, i]
-	    widget_state = lazy(ui_state, id)
+    W, H = 600, 480
+    UI.new(W, H, "immui", '/usr/local/share/fonts/dejavu/DejaVuSans.ttf', 18).run do |renderer, ui_state|
+	placement = Placement.new(Rect.new(10, 10, W-20, H-20)) 
+
+	for i in 0 .. 9
+	    id = [:button, i]; widget_state = lazy(ui_state, id)
 	    style = {fg: ui_state[:focus] == id ? renderer.rgb(255, 0, 0) : renderer.black}
-	    button(renderer, 10, y, 100, 20, "Hello #{i}", widget_state, style) {|s| ui_state[:focus] = s[:id] }
+	    button(renderer, *placement.place_down(100, 20, 10), "Hello #{i}", widget_state, style) {|s| ui_state[:focus] = s[:id] }
 	end
-	for y, i in 10.step(300, 30).with_index
-	    id = [:slider, i]
-	    widget_state = lazy(ui_state, id)
+
+	placement.reset.move_right(100 + 10)
+
+	for i in 0 .. 9
+	    id = [:slider, i]; widget_state = lazy(ui_state, id)
 	    style = {
 		border: ui_state[:focus] == id ? renderer.black : nil
 	    }
-	    slider_x(renderer, 120, y, 420, 20, widget_state, style) {|s| ui_state[:focus] = s[:id] }
+	    slider_x(renderer, *placement.place_down(420, 20, 10), widget_state, style) {|s| ui_state[:focus] = s[:id] }
 	end
-	widget_state = lazy(ui_state, [:global_slider])
-	slider_y(renderer, 560, 10, 20, 290, widget_state, {fg: renderer.red(widget_state[:value] || 1.0)}) do |s|
+
+	placement.reset.move_right(100 + 10 + 420 + 20)
+
+	id = [:global_slider]; widget_state = lazy(ui_state, id)
+	slider_y(renderer, *placement.place_down(20, 290), widget_state, {fg: renderer.red(widget_state[:value] || 1.0)}) do |s|
             ui_state[:focus] = s[:id]
 	    # Update all other sliders with the same value as the global slider
 	    ui_state.each_pair {|key, v|
