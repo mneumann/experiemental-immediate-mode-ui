@@ -30,11 +30,11 @@ class Placement
   end
 end
 
-if $PROGRAM_NAME == __FILE__
-  W = 600
-  H = 480
-  UI.new(W, H, 'immui', '/usr/local/share/fonts/dejavu/DejaVuSans.ttf', 18).run do |renderer, ui_state|
-    placement = Placement.new(Rect.new(10, 10, W - 20, H - 20))
+def main
+  w = 600
+  h = 480
+  UI.new(w, h, 'immui', '/usr/local/share/fonts/dejavu/DejaVuSans.ttf', 18).run do |renderer, ui_state|
+    placement = Placement.new(Rect.new(10, 10, w - 20, h - 20))
 
     for i in 0..9 do
       id = [:button, i]; widget_state = lazy(ui_state, id)
@@ -74,3 +74,5 @@ if $PROGRAM_NAME == __FILE__
     end
   end
 end
+
+main if $PROGRAM_NAME == __FILE__
