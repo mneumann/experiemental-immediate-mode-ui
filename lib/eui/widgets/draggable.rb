@@ -1,3 +1,5 @@
+require 'eui/rect'
+
 # region_rect describes the region in which the handle can be moved.
 #
 # ui_state must include handle_x, handle_y
