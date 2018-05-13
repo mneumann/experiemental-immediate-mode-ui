@@ -3,8 +3,6 @@ require 'eui/rect'
 require 'eui/point'
 require 'eui/lazy'
 require 'eui/ui'
-require 'eui/widgets/slider'
-
 
 class Behavior
 	def initialize(initial_value)
@@ -25,7 +23,7 @@ class Behavior
 
 	def listen(&block)
 		@listeners.push(block)
-		return block
+		block.call(@value)
 	end
 
 	def unlisten(handle)
@@ -52,7 +50,6 @@ class Stream
 
 	def listen(&block)
 		@listeners.push(block)
-		return block
 	end
 
 	def unlisten(handle)
@@ -65,7 +62,7 @@ class Events
 	attr_reader :mouse_button_state
 
 	def initialize
-		@mouse_pos = Behavior.new([0, 0]) # ???
+		@mouse_pos = Behavior.new([0, 0])
 		@mouse_button_down = Stream.new
 		@mouse_button_up = Stream.new
 		@mouse_button_state = Behavior.new(:up)
@@ -108,83 +105,76 @@ def ev_coord_to_slider_value(ev_x, x, w)
   end
 end
 
-def react_slider(events, slider_value, rect, is_horizontal)
-	events.mouse_button_down.listen do |mouse_pos|
-	  mx, my = *mouse_pos
-	  if rect.contains(mx, my)
-		  if is_horizontal
-			slider_value.push(ev_coord_to_slider_value(mx, rect.x, rect.w))
-		  else
-			slider_value.push(ev_coord_to_slider_value(my, rect.y, rect.h))
+class Slider
+	attr_reader :value
+
+	def initialize(rect, is_horizontal, style)
+		@rect = rect
+		@is_horizontal = is_horizontal
+		@style = style
+		@value = Behavior.new(0.0)
+	end
+
+	def attach(ui, events)
+		@value.listen do |slider_val|
+			draw(ui.renderer, slider_val)
+			ui.update_screen
+		end
+		events.mouse_button_down.listen do |mouse_pos|
+		  mx, my = *mouse_pos
+		  if @rect.contains(mx, my)
+			  if @is_horizontal
+				@value.push(ev_coord_to_slider_value(mx, @rect.x, @rect.w))
+			  else
+				@value.push(ev_coord_to_slider_value(my, @rect.y, @rect.h))
+			  end
 		  end
-	  end
-    end  
-	events.mouse_pos.listen do |mouse_pos|
-	  mx, my = *mouse_pos
-	  if rect.contains(mx, my) and events.mouse_button_state.get_current_value == :down
-		  if is_horizontal
-			slider_value.push(ev_coord_to_slider_value(mx, rect.x, rect.w))
-		  else
-			slider_value.push(ev_coord_to_slider_value(my, rect.y, rect.h))
+		end  
+		events.mouse_pos.listen do |mouse_pos|
+		  mx, my = *mouse_pos
+		  if @rect.contains(mx, my) and events.mouse_button_state.get_current_value == :down
+			  if @is_horizontal
+				@value.push(ev_coord_to_slider_value(mx, @rect.x, @rect.w))
+			  else
+				@value.push(ev_coord_to_slider_value(my, @rect.y, @rect.h))
+			  end
 		  end
-	  end
+		end
+	end
+
+	private def draw(renderer, slider_val)
+		bg_color = @style[:bg] || renderer.gray(0.8)
+		fg_color = @style[:fg] || renderer.rgb(255, 0, 0)
+		border_color = @style[:border]
+
+		renderer.fill_rect @rect, bg_color
+		filled_rect = if @is_horizontal
+						  @rect.with_w([(slider_val * @rect.w).to_i, @rect.w].min)
+					  else
+						  @rect.with_h([(slider_val * @rect.h).to_i, @rect.h].min)
+					  end
+		renderer.fill_rect filled_rect, fg_color
+		renderer.rect filled_rect, border_color if border_color
 	end
 end
 
-def draw_slider(renderer, rect, is_horizontal, slider_val, style = {})
-  bg_color = style[:bg] || renderer.gray(0.8)
-  fg_color = style[:fg] || renderer.rgb(255, 0, 0)
-  border_color = style[:border]
-
-  renderer.fill_rect rect, bg_color
-  filled_rect = if is_horizontal
-                  rect.with_w([(slider_val * rect.w).to_i, rect.w].min)
-                else
-                  rect.with_h([(slider_val * rect.h).to_i, rect.h].min)
-  end
-  renderer.fill_rect filled_rect, fg_color
-  renderer.rect filled_rect, border_color if border_color
-end
-
-
-def draw_ui(w, h, renderer, ui_state)
-	renderer.clear(renderer.white)
-    style = { border: renderer.black }
-	draw_slider(renderer, Rect.new(10, 10, w-20, (h-20)/2), true, ui_state[:slider_value1].get_current_value, style)
-	draw_slider(renderer, Rect.new(10, 10+(h-20)/2, w-20, (h-20)/2), true, ui_state[:slider_value2].get_current_value, style)
-end
 
 def main
   w = 600
   h = 480
 
-  ui_state = {
-		slider_value1: Behavior.new(0),
-		slider_value2: Behavior.new(0.5),
-  }
-
   ui = UI.new(w, h, 'immui', '/usr/local/share/fonts/dejavu/DejaVuSans.ttf', 18)
-
-  ui_state[:slider_value1].listen do ||
-	  style = { border: ui.renderer.black }
-	  draw_slider(ui.renderer, Rect.new(10, 10, w-20, (h-20)/2), true, ui_state[:slider_value1].get_current_value, style)
-	  #draw_ui(w, h, ui.renderer, ui_state)
-	  ui.update_screen
-  end
-  ui_state[:slider_value2].listen do ||
-	  style = { border: ui.renderer.black }
-	  draw_slider(ui.renderer, Rect.new(10, 10+(h-20)/2, w-20, (h-20)/2), true, ui_state[:slider_value2].get_current_value, style)
-	  #draw_ui(w, h, ui.renderer, ui_state)
-	  ui.update_screen
-  end
+  ui.renderer.clear(ui.renderer.white)
+  ui.update_screen
 
   events = Events.new  
 
-  react_slider(events, ui_state[:slider_value1], Rect.new(10, 10, w-20, (h-20)/2), true)
-  react_slider(events, ui_state[:slider_value2], Rect.new(10, 10+(h-20)/2, w-20, (h-20)/2), true)
+  slider1 = Slider.new(Rect.new(10, 10, w-20, (h-20)/2), true, { border: ui.renderer.black })
+  slider2 = Slider.new(Rect.new(10, 10+(h-20)/2, w-20, (h-20)/2), true, { border: ui.renderer.black })
+  slider2.value.push(0.5)
 
-  draw_ui(w, h, ui.renderer, ui_state)
-  ui.update_screen
+  slider1.attach(ui, events)
+  slider2.attach(ui, events)
 
   loop do
 	events.poll
