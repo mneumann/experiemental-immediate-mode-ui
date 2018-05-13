@@ -3,6 +3,8 @@ require 'eui/renderer'
 require 'eui/event_handler_registry'
 
 class UI
+  attr_reader :renderer
+
   def initialize(w, h, title, ttf_font_file, font_size)
     SDL.init SDL::INIT_VIDEO
     @screen = SDL::Screen.open(w, h, 16, SDL::SWSURFACE | SDL::ANYFORMAT)
@@ -16,6 +18,10 @@ class UI
     @renderer.add_font('default', font)
   end
 
+  def update_screen
+    @screen.updateRect 0, 0, 0, 0
+  end
+
   def run(ui_state = {})
     needs_redraw = true
     event_handler_registry = EventHandlerRegistry.new
@@ -23,10 +29,9 @@ class UI
       if needs_redraw
         event_handler_registry.reset_event_handlers
         yield @renderer, ui_state, event_handler_registry
-        @screen.updateRect 0, 0, 0, 0
+		update_screen()
       end
 	  needs_redraw = event_handler_registry.handle_event
     end
   end
-
 end
