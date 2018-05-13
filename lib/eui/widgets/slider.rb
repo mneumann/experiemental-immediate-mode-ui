@@ -9,7 +9,7 @@ def ev_coord_to_slider_value(ev_x, x, w)
   end
 end
 
-def slider(renderer, rect, is_horizontal, ui_state, style = {}, &on_change)
+def slider(renderer, event_handler_registry, rect, is_horizontal, ui_state, style = {}, &on_change)
   slider_val = ui_state[:value] || 0.0
 
   bg_color = style[:bg] || renderer.gray(0.8)
@@ -37,7 +37,7 @@ def slider(renderer, rect, is_horizontal, ui_state, style = {}, &on_change)
                                                          false
                                                        end
                                                      } }
-    renderer.register_event_handler(evh)
+    event_handler_registry.register_event_handler(evh)
   else
     evh1 = { type: :mouse_up, callback: proc { |ev|
                                           if ui_state[:pressed] == true
@@ -61,15 +61,15 @@ def slider(renderer, rect, is_horizontal, ui_state, style = {}, &on_change)
         false
         end
     } }
-    renderer.register_event_handler(evh1)
-    renderer.register_event_handler(evh2)
+    event_handler_registry.register_event_handler(evh1)
+    event_handler_registry.register_event_handler(evh2)
   end
 end
 
-def slider_x(renderer, rect, ui_state, style = {}, &on_change)
-  slider(renderer, rect, true, ui_state, style, &on_change)
+def slider_x(renderer, event_handler_registry, rect, ui_state, style = {}, &on_change)
+  slider(renderer, event_handler_registry,rect, true, ui_state, style, &on_change)
 end
 
-def slider_y(renderer, rect, ui_state, style = {}, &on_change)
-  slider(renderer, rect, false, ui_state, style, &on_change)
+def slider_y(renderer, event_handler_registry, rect, ui_state, style = {}, &on_change)
+  slider(renderer, event_handler_registry, rect, false, ui_state, style, &on_change)
 end

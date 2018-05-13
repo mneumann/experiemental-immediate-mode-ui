@@ -1,4 +1,4 @@
-def button(renderer, rect, label, ui_state, style = {}, &on_click)
+def button(renderer, event_handler_registry, rect, label, ui_state, style = {}, &on_click)
   bg_color = style[:bg] || renderer.gray(0.8)
   fg_color = style[:fg] || renderer.black
   border_color = style[:border] || renderer.black
@@ -16,7 +16,7 @@ def button(renderer, rect, label, ui_state, style = {}, &on_click)
         false
         end
     } }
-    renderer.register_event_handler(evh)
+    event_handler_registry.register_event_handler(evh)
   else
     renderer.rect rect, border_color
     renderer.text(font, label, rect.x + 5, rect.y, fg_color)
@@ -29,6 +29,6 @@ def button(renderer, rect, label, ui_state, style = {}, &on_click)
         false
         end
     } }
-    renderer.register_event_handler(evh)
+    event_handler_registry.register_event_handler(evh)
   end
 end

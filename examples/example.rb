@@ -33,13 +33,14 @@ end
 def main
   w = 600
   h = 480
-  UI.new(w, h, 'immui', '/usr/local/share/fonts/dejavu/DejaVuSans.ttf', 18).run do |renderer, ui_state|
+  UI.new(w, h, 'immui', '/usr/local/share/fonts/dejavu/DejaVuSans.ttf', 18).run do |renderer, ui_state, evhr|
+	renderer.clear(renderer.white)
     placement = Placement.new(Rect.new(10, 10, w - 20, h - 20))
 
     for i in 0..9 do
       id = [:button, i]; widget_state = lazy(ui_state, id)
       style = { fg: ui_state[:focus] == id ? renderer.rgb(255, 0, 0) : renderer.black }
-      button(renderer, placement.place_down(100, 20, 10), "Hello #{i}", widget_state, style) { |s| ui_state[:focus] = s[:id] }
+      button(renderer, evhr, placement.place_down(100, 20, 10), "Hello #{i}", widget_state, style) { |s| ui_state[:focus] = s[:id] }
     end
 
     placement.reset.move_right(100 + 10)
@@ -49,13 +50,13 @@ def main
       style = {
         border: ui_state[:focus] == id ? renderer.black : nil
       }
-      slider_x(renderer, placement.place_down(420, 20, 10), widget_state, style) { |s| ui_state[:focus] = s[:id] }
+      slider_x(renderer, evhr, placement.place_down(420, 20, 10), widget_state, style) { |s| ui_state[:focus] = s[:id] }
     end
 
     placement.reset.move_right(100 + 10 + 420 + 20)
 
     id = [:global_slider]; widget_state = lazy(ui_state, id)
-    slider_y(renderer, placement.place_down(20, 290), widget_state, fg: renderer.red(widget_state[:value] || 1.0)) do |s|
+    slider_y(renderer, evhr, placement.place_down(20, 290), widget_state, fg: renderer.red(widget_state[:value] || 1.0)) do |s|
       ui_state[:focus] = s[:id]
       # Update all other sliders with the same value as the global slider
       ui_state.each_pair do |key, v|
@@ -70,7 +71,7 @@ def main
       drag_handle_state = lazy(ui_state, [:drag, i]) { |id| { id: id, handle_x: 10 + (i * 45), handle_y: 310, color: renderer.random_color, drag_size: 40 } }
       drag_size = drag_handle_state[:drag_size]
       renderer.fill_rect(Rect.new(drag_handle_state[:handle_x], drag_handle_state[:handle_y], drag_size, drag_size), drag_handle_state[:color])
-      draggable(renderer, drag_size, drag_size, Rect.new(10, 310, 570 - drag_size, 160 - drag_size), drag_handle_state)
+      draggable(renderer, evhr, drag_size, drag_size, Rect.new(10, 310, 570 - drag_size, 160 - drag_size), drag_handle_state)
     end
   end
 end

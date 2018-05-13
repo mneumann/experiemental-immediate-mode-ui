@@ -1,8 +1,4 @@
-require 'eui/event_handler_mixin'
-
 class Renderer
-  include EventHandlingMixin
-
   def initialize(screen, screen_w, screen_h)
     @screen = screen
     @screen_rect = Rect.new(0, 0, screen_w, screen_h)
@@ -10,8 +6,6 @@ class Renderer
     @black = rgb(0, 0, 0)
     @white = rgb(255, 255, 255)
     @fonts = {}
-
-    init_event_handlers
   end
 
   def clear(color = @black)
@@ -65,5 +59,3 @@ class Renderer
     @fonts[font_name].draw_solid_utf8(@screen, str, x, y, *color)
   end
 end
-
-

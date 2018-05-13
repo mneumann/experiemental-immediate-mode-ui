@@ -5,7 +5,7 @@ require 'eui/rect'
 # ui_state must include handle_x, handle_y
 #
 # NOTE that nothing is drawn. This "widget" is a pure event handler
-def draggable(renderer, handle_w, handle_h, region_rect, ui_state, &on_change)
+def draggable(renderer, event_handler_registry, handle_w, handle_h, region_rect, ui_state, &on_change)
   handle_x = ui_state[:handle_x] || 0
   handle_y = ui_state[:handle_y] || 0
   if !(ui_state[:pressed])
@@ -18,7 +18,7 @@ def draggable(renderer, handle_w, handle_h, region_rect, ui_state, &on_change)
                                                                                                      false
                                                                                                    end
                                                                                                  } }
-    renderer.register_event_handler(evh)
+    event_handler_registry.register_event_handler(evh)
   else
     evh2 = { type: :mouse_move, callback: proc { |ev|
                                             if ui_state[:pressed] == true
@@ -50,7 +50,7 @@ def draggable(renderer, handle_w, handle_h, region_rect, ui_state, &on_change)
         end
     } }
 
-    renderer.register_event_handler(evh1)
-    renderer.register_event_handler(evh2)
+    event_handler_registry.register_event_handler(evh1)
+    event_handler_registry.register_event_handler(evh2)
   end
 end
