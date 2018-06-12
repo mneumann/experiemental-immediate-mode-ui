@@ -1,7 +1,5 @@
 $LOAD_PATH.unshift '../lib'
 require 'eui/rect'
-require 'eui/point'
-require 'eui/lazy'
 require 'eui/ui'
 
 class Behavior
