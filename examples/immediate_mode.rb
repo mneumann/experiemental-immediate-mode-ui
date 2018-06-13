@@ -38,9 +38,43 @@ def slider(ctx, uid, slider_val, rect, is_horizontal, style)
 	end
 end
 
+def button(ctx, uid, rect, label, style = {})
+	bg_color = style[:bg] || ctx.renderer.gray(0.8)
+	fg_color = style[:fg] || ctx.renderer.black
+	border_color = style[:border] || ctx.renderer.black
+	font = style[:font] || 'default'
+
+	draw_pressed = false
+	click_action = false
+
+	if ctx.active == uid
+		# This button received a mouse click before
+
+		if rect.contains(ctx.mx, ctx.my)
+			if ctx.mouse_key == 0
+				click_action = true
+				ctx.active = nil
+			else
+				draw_pressed = true
+			end
+		end
+	elsif ctx.mouse_key == 1 and rect.contains(ctx.mx, ctx.my)
+		ctx.active = uid
+		draw_pressed = true
+	end
+
+	offset = if draw_pressed then 5 else 2 end
+	ctx.renderer.fill_rect rect, bg_color
+	ctx.renderer.rect rect, border_color
+	ctx.renderer.text(font, label, rect.x + offset, rect.y + offset, fg_color)
+
+	return click_action
+end
+
 class UIContext
 	attr_accessor :mx, :my
 	attr_accessor :mouse_key
+	attr_accessor :active
 
 	def initialize(ui)
 		@ui = ui
@@ -89,14 +123,27 @@ def main
 		ctx.mouse_key = 0
 	end
 
+	x1 = 10
+	w1 = w - 20
+	y1 = 10
+	h1 = 40 
+	y2 = y1 + h1 + 10
+	y3 = y2 + h1 + 10
+		
+	if button(ctx, "but",
+		   Rect.new(x1, y1, w1, h1),
+		   "Click me",
+		   { border: ui.renderer.black }) then
+		p "clicked"
+	end
 	slider1_val = slider(ctx, "s1",
 		   slider1_val,
-		   Rect.new(10, 10, w-20, (h-20)/2),
+		   Rect.new(x1, y2, w1, h1),
 		   true,
 		   { border: ui.renderer.black })
 	slider2_val = slider(ctx, "s2",
 		   slider2_val,
-		   Rect.new(10, 10+(h-20)/2, w-20, (h-20)/2),
+		   Rect.new(x1, y3, w1, h1),
 		   true,
 		   { border: ui.renderer.black })
 	ui.update_screen
