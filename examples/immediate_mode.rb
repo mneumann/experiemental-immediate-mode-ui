@@ -47,20 +47,19 @@ def button(ctx, uid, rect, label, style = {})
 	draw_pressed = false
 	click_action = false
 
-	if ctx.active == uid
-		# This button received a mouse click before
-
-		if rect.contains(ctx.mx, ctx.my)
+	if rect.contains(ctx.mx, ctx.my)
+		if ctx.active == uid
+			# This button received a mouse click before
 			if ctx.mouse_key == 0
 				click_action = true
 				ctx.active = nil
 			else
 				draw_pressed = true
 			end
+		elsif ctx.mouse_key == 1
+			ctx.active = uid
+			draw_pressed = true
 		end
-	elsif ctx.mouse_key == 1 and rect.contains(ctx.mx, ctx.my)
-		ctx.active = uid
-		draw_pressed = true
 	end
 
 	offset = if draw_pressed then 5 else 2 end
